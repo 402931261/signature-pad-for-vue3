@@ -1,4 +1,4 @@
-# @lx/signature-pad-for-vue3
+# @npm_lx/signature-pad-for-vue3
 
 一个基于[signature_pad](https://github.com/szimek/signature_pad)的签名板Vue3组件，支持自定义样式和多种导出格式，简单易用，可用于用户签名、合同签名等场景，可随时更换背景图片。  
 
@@ -6,7 +6,7 @@
 ## 安装
 
 ```bash
-npm install @lx/signature-pad-for-vue3
+npm install @npm_lx/signature-pad-for-vue3
 ```
 
 ## 组件预览
