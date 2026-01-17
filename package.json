@@ -2,7 +2,7 @@
   "name": "@lx/signature-pad-for-vue3",
   "version": "0.0.1",
   "type": "module",
-  "private": "false",
+  "private": false,
   "scripts": {
     "dev": "vite",
     "build": "vite build",
