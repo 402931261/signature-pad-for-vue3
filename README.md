@@ -39,7 +39,7 @@ pnpm run dev
 
 <script setup>
 import { ref } from 'vue'
-import SignaturePad from '@lx/signature-pad-for-vue3'
+import SignaturePad from '@npm_lx/signature-pad-for-vue3'
 
 const signaturePadRef = ref(null)
 
