@@ -10,6 +10,7 @@ npm install @npm_lx/signature-pad-for-vue3
 ```
 
 ## 组件预览
+需要你到本项目github上面clone项目，然后在项目根目录下执行以下命令，才能预览组件运行效果
 ```bash
 pnpm install
 pnpm run dev
