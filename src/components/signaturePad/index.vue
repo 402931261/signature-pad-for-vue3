@@ -272,8 +272,10 @@ const addWatermark = () => {
       fontWeight: 'bold',
       color: 'rgba(0, 0, 0, 0.1)',
       rotate: -45,
-      x: 100,
-      y: 100,
+      x: 30,
+      y: 30,
+      textDistanceX: 0,
+      textDistanceY: 0,
       repeat: true,
     },
     props.watermark,
@@ -287,17 +289,23 @@ const addWatermark = () => {
   if (options.repeat) {
     const canvasWidth = canvasRef.value.width / ratio
     const canvasHeight = canvasRef.value.height / ratio
+    // 这里需要先设置字体后才能正确拿到文本宽度，否则会出现计算错误，原因是如果没有先设置字体的话会使用默认字体，导致获取到的文本长度不正确
+    ctx.save()
+    ctx.font = `${options.fontWeight} ${options.fontSize}px/${options.lineHeight}px ${options.fontFamily}`
     const textWidth = ctx.measureText(options.text).width
-    const textHeight = options.fontSize
+    ctx.restore()
+
+    const textHeight = options.lineHeight
 
     const diagonal = Math.sqrt(canvasWidth * canvasWidth + canvasHeight * canvasHeight)
-    const stepX = textWidth + 100
-    const stepY = textHeight + 100
+    const stepX = textWidth + options.textDistanceX
+    const stepY = textHeight + options.textDistanceY
 
     for (let x = -diagonal; x < diagonal; x += stepX) {
       for (let y = -diagonal; y < diagonal; y += stepY) {
         ctx.save()
         ctx.font = `${options.fontWeight} ${options.fontSize}px/${options.lineHeight}px ${options.fontFamily}`
+        ctx.textBaseline = 'top'
         ctx.fillStyle = options.color
         ctx.translate(x, y)
         ctx.rotate((Math.PI / 180) * options.rotate)
@@ -307,7 +315,8 @@ const addWatermark = () => {
     }
   } else {
     ctx.save()
-    ctx.font = `${options.fontWeight} ${options.fontSize}px/${lineHeight}px ${options.fontFamily}`
+    ctx.font = `${options.fontWeight} ${options.fontSize}px/${options.lineHeight}px ${options.fontFamily}`
+    ctx.textBaseline = 'top'
     // 水印颜色
     ctx.fillStyle = options.color
     // 水印位置

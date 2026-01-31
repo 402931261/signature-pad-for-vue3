@@ -99,7 +99,37 @@ button {
 | penColor | String | '#000000' | 笔画的颜色 |
 | backgroundColor | String | '#F3F3F4' | 画板的背景颜色 |
 | bgImageUrl | String | '' | 背景图片的URL（用于回显签名） |
+| watermark | Object | {} | 水印配置参数，默认值见[水印配置](#) |
 
+## 默认水印参数
+当你想加水印的时候，记得text需要传字符串才会打开水印，否则text值为空是不加水印的
+```javascript
+{
+  // 水印文本
+  text: '', 
+  // 字体大小
+  fontSize: 20,
+  // 行高
+  lineHeight: 24,
+  // 字体
+  fontFamily: 'Arial',
+  // 字重
+  fontWeight: 'bold',
+  // 字体颜色
+  color: 'rgba(0, 0, 0, 0.1)',
+  // 旋转角度
+  rotate: -45,
+  // 水印起始x坐标
+  x: 100,
+  // 水印起始y坐标
+  y: 100,
+  // 当重复水印的时候，水印之间的距离 x y
+  textDistanceX: 0,
+  textDistanceY: 0,
+  // 是否在整个画布上重复水印
+  repeat: true,
+}
+```
 ## 方法
 
 | 方法名 | 参数 | 返回值 | 描述 |
