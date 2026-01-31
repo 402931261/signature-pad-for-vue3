@@ -99,7 +99,7 @@ button {
 | penColor | String | '#000000' | 笔画的颜色 |
 | backgroundColor | String | '#F3F3F4' | 画板的背景颜色 |
 | bgImageUrl | String | '' | 背景图片的URL（用于回显签名） |
-| watermark | Object | {} | 水印配置参数，默认值见[水印配置](#) |
+| watermark | Object | {} | 水印配置参数，默认值见[水印配置](#默认水印参数) |
 
 ## 默认水印参数
 当你想加水印的时候，记得text需要传字符串才会打开水印，否则text值为空是不加水印的
