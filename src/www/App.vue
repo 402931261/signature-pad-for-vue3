@@ -6,80 +6,105 @@
         ref="signaturePadRef"
         :bgImageUrl="canvasBgUrl"
         :penColor="color"
+        :watermark="watermarkOptions"
         @beginStroke="handleBeginStroke"
         @endStroke="handleEndStroke"
       />
     </div>
     <div class="signature-pad-buttons">
-      <button @click="handleResetSignatureClick">重置</button>
-      <button @click="handleResetAllClick">重置（并清空背景）</button>
+      <button @click="handleResetSignatureClick">重置（清空笔画）</button>
+      <button @click="handleResetBgColorClick">重置（并清空背景颜色）</button>
+      <button @click="handleResetBgAndSignatureClick">重置（并清空背景）</button>
+      <button @click="handleResetWatermarkAndSignatureClick">重置（并清空水印）</button>
+      <button @click="handleResetAllClick">重置（并清空背景和水印）</button>
       <button @click="handleGetBase64Click">获取签字base64</button>
       <button @click="handleGetImageFileClick">获取签字文件下载</button>
       <button @click="checkSignatureIsEmpty">检查是画板是否有内容</button>
       <div class="pen-color">
         <span>画笔颜色：</span>
-        <input type="color" v-model="color"></input>
+        <input type="color" v-model="color" />
       </div>
     </div>
   </div>
 </template>
 <script setup>
-import SignaturePad from "@/components/signaturePad/index.vue";
-import { ref, onMounted } from "vue";
+import SignaturePad from '@/components/signaturePad/index.vue'
+import { ref, onMounted } from 'vue'
 
 // 以下是签字板相关
-const signaturePadRef = ref(null);
-const canvasBgUrl = ref("");
-const color = ref("#000000");
+const signaturePadRef = ref(null)
+const canvasBgUrl = ref('')
+const color = ref('#223388')
+const watermarkOptions = ref({
+  text: '这是一段水印文字this is the watermark text',
+  color: 'rgba(255, 0, 0, 0.3)',
+})
 
 setTimeout(() => {
   // canvasBgUrl.value = ''
   signaturePadRef.value.setBgImage(
-    "h"
-  );
-}, 1500);
+    'https://img0.baidu.com/it/u=4032653794,3881997789&fm=253&fmt=auto&app=138&f=JPEG?w=715&h=500',
+  )
+}, 1500)
 
 // 画笔开始绘制
 const handleBeginStroke = () => {
-  console.log("handleBeginStroke");
-};
+  console.log('handleBeginStroke')
+}
 // 画笔结束绘制
 const handleEndStroke = () => {
-  console.log("handleEndStroke");
-};
+  console.log('handleEndStroke')
+}
 
 // 只清空签名
 const handleResetSignatureClick = () => {
-  signaturePadRef.value.clear();
-};
-// 清空背景和签名
+  signaturePadRef.value.clear()
+}
+
+// 清空签名和背景颜色
+const handleResetBgColorClick = () => {
+  signaturePadRef.value.clear(['background-color'])
+}
+
+// 清空签名和背景
+const handleResetBgAndSignatureClick = () => {
+  signaturePadRef.value.clear(['background'])
+}
+
+// 清空签名和水印
+const handleResetWatermarkAndSignatureClick = () => {
+  signaturePadRef.value.clear(['watermark'])
+}
+
+// 清空签名、背景和水印
 const handleResetAllClick = () => {
-  signaturePadRef.value.clear(true);
-};
+  signaturePadRef.value.clear(['background', 'watermark'])
+}
+
 // 获取签字base64
 const handleGetBase64Click = () => {
-  console.log("base64 data: ", signaturePadRef.value.getBase64Data());
-};
+  console.log(signaturePadRef.value.isCanvasEmpty())
+  console.log('base64 data: ', signaturePadRef.value.getBase64Data())
+}
 
 // 获取签字文件下载
 const handleGetImageFileClick = () => {
-  signaturePadRef.value.getImageFile();
-};
+  signaturePadRef.value.getImageFile()
+}
 
 // 检查签字板是否是空的
 const checkSignatureIsEmpty = () => {
-  console.log(signaturePadRef.value.isCanvasEmpty());
-};
-
+  console.log(signaturePadRef.value.isCanvasEmpty())
+}
 
 onMounted(() => {
-  console.log("signaturePadRef", signaturePadRef.value);
-});
+  console.log('signaturePadRef', signaturePadRef.value)
+})
 </script>
 
 <style scoped>
 .pages {
-  width: 1024px;
+  width: 80%;
   height: 100%;
   margin: 0 auto;
   padding: 40px 0;
@@ -146,7 +171,7 @@ button:active {
   padding: 8px 12px;
 }
 
-input[type="color"] {
+input[type='color'] {
   width: 50px;
   height: 24px;
   border: none;
@@ -156,11 +181,11 @@ input[type="color"] {
   padding: 2px;
 }
 
-input[type="color"]::-webkit-color-swatch-wrapper {
+input[type='color']::-webkit-color-swatch-wrapper {
   padding: 0;
 }
 
-input[type="color"]::-webkit-color-swatch {
+input[type='color']::-webkit-color-swatch {
   border: none;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);

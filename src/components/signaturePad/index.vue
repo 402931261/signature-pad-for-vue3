@@ -7,6 +7,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import SignaturePad from 'signature_pad'
+import { loadImage, debounce } from './utils'
 
 const emits = defineEmits(['beginStroke', 'endStroke'])
 const props = defineProps({
@@ -35,7 +36,31 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  watermark: {
+    type: Object,
+    default: () => ({
+      text: '',
+      fontSize: 20,
+      lineHeight: 24,
+      fontFamily: 'Arial',
+      fontWeight: 'bold',
+      color: 'rgba(0, 0, 0, 0.1)',
+      rotate: -45,
+      x: 100,
+      y: 100,
+      repeat: true,
+    }),
+  },
 })
+
+const containerRef = ref(null) // 画板容器
+const canvasRef = ref(null) // canvas 元素
+const signaturePadRef = ref(null) // 实例
+const bgImage = ref(null) // 背景图片
+const isEmpty = ref(true) // 是否为空
+const canvasData = ref(null) // 保存画板数据
+
+let ratio = window.devicePixelRatio || 1
 
 // 背景url改变监听
 watch(
@@ -75,21 +100,10 @@ watch(
   },
 )
 
-const containerRef = ref(null) // 画板容器
-const canvasRef = ref(null)
-const signaturePadRef = ref(null)
-const bgImage = ref(null)
-const isEmpty = ref(true)
-const canvasData = ref(null) // 保存画板数据
-
-let ratio = window.devicePixelRatio || 1
-
 // 初始化背景图
 const initBgImage = () => {
   if (props.bgImageUrl) {
-    const img = new Image()
-    img.crossOrigin = 'anonymous'
-    img.onload = () => {
+    loadImage(props.bgImageUrl).then((img) => {
       bgImage.value = img
       if (signaturePadRef.value) {
         signaturePadRef.value.clear()
@@ -97,8 +111,7 @@ const initBgImage = () => {
           signaturePadRef.value.fromData(canvasData.value)
         }
       }
-    }
-    img.src = props.bgImageUrl
+    })
   } else {
     bgImage.value = null
     if (signaturePadRef.value) {
@@ -128,56 +141,82 @@ const initSignaturePad = () => {
   const ctx = canvas.getContext('2d')
   ctx.scale(ratio, ratio)
 
-  const canvasPad = new SignaturePad(canvas, {
-    minWidth: props.penMinWidth,
-    maxWidth: props.penMaxWidth,
-    penColor: props.penColor,
-    backgroundColor: props.backgroundColor,
-  })
+  // 如果signature_pad实例不存在，就创建一个新实例
+  if (!signaturePadRef.value) {
+    const canvasPad = new SignaturePad(canvas, {
+      minWidth: props.penMinWidth,
+      maxWidth: props.penMaxWidth,
+      penColor: props.penColor,
+      backgroundColor: props.backgroundColor,
+    })
 
-  removeEvents(canvasPad)
-  addEvents(canvasPad)
+    const originClear = canvasPad.clear
+    // 重写clear方法，调用必定会清除笔画，可选额外清除内容参数clearList：background-color、background 和 watermark
+    canvasPad.clear = (clearList = []) => {
+      originClear.call(canvasPad) // 调用原始方法
 
-  const originClear = canvasPad.clear
-  canvasPad.clear = (isClearBg) => {
-    originClear.call(canvasPad) // 调用原始方法
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    if (bgImage.value && !isClearBg) {
-      ctx.drawImage(bgImage.value, 0, 0, width, height)
-    } else {
-      ctx.fillStyle = props.backgroundColor
-      ctx.fillRect(0, 0, width, height)
+      const isNeedToClearBgColor = clearList.includes('background-color')
+      const isNeedToClearBgImage = clearList.includes('background')
+      const isNeedToClearWatermark = clearList.includes('watermark')
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+      // 清空背景颜色
+      if (!isNeedToClearBgColor && props.backgroundColor) {
+        ctx.fillStyle = props.backgroundColor
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+      }
+
+      // 清空背景图片
+      if (!isNeedToClearBgImage && bgImage.value) {
+        ctx.drawImage(bgImage.value, 0, 0, width, height)
+      }
+
+      // 清空水印
+      if (!isNeedToClearWatermark) {
+        addWatermark()
+      }
     }
-  }
 
-  signaturePadRef.value = canvasPad
-  canvasPad.clear()
+    signaturePadRef.value = canvasPad
+    addEvents()
+    canvasPad.clear()
 
-  // 恢复之前的画板
-  if (canvasData.value) {
-    canvasPad.fromData(canvasData.value)
+    // 恢复之前的画板
+    if (canvasData.value) {
+      canvasPad.fromData(canvasData.value)
+    }
+  } else {
+    signaturePadRef.value.clear()
+    if (canvasData.value) {
+      signaturePadRef.value.fromData(canvasData.value)
+    }
   }
 }
 
 // 解除事件绑定
-const removeEvents = (canvasPad) => {
-  canvasPad.removeEventListener('beginStroke')
-  canvasPad.removeEventListener('endStroke')
+const removeEvents = () => {
+  signaturePadRef.value.removeEventListener('beginStroke', emitBeginStroke)
+  signaturePadRef.value.removeEventListener('endStroke', emitEndStroke)
 }
 
 // 添加事件绑定
-const addEvents = (canvasPad) => {
-  canvasPad.addEventListener('beginStroke', () => {
-    emits('beginStroke')
-  })
-  canvasPad.addEventListener('endStroke', () => {
-    emits('endStroke')
-  })
+const addEvents = () => {
+  signaturePadRef.value.addEventListener('beginStroke', emitBeginStroke)
+  signaturePadRef.value.addEventListener('endStroke', emitEndStroke)
+}
+
+const emitBeginStroke = () => {
+  emits('beginStroke')
+}
+
+const emitEndStroke = () => {
+  emits('endStroke')
 }
 
 // 清空画板 是否清除背景图
-const clear = (isClearBg = false) => {
-  signaturePadRef.value?.clear(isClearBg)
+const clear = (clearList) => {
+  signaturePadRef.value?.clear(clearList)
   canvasData.value = null
   isEmpty.value = true
 }
@@ -201,9 +240,7 @@ const getImageFile = (format = 'png', quality = 0.95) => {
 
 // 设置背景图
 const setBgImage = (url) => {
-  const img = new Image()
-  img.crossOrigin = 'anonymous'
-  img.onload = () => {
+  loadImage(url).then((img) => {
     bgImage.value = img
     if (signaturePadRef.value) {
       signaturePadRef.value.clear()
@@ -211,11 +248,10 @@ const setBgImage = (url) => {
         signaturePadRef.value.fromData(canvasData.value)
       }
     }
-  }
-  img.src = url
+  })
 }
 
-const handleResize = () => {
+const handleResize = debounce(() => {
   ratio = window.devicePixelRatio || 1
   // 保存当前画板
   if (signaturePadRef.value) {
@@ -223,18 +259,79 @@ const handleResize = () => {
   }
   // 重新初始化画布
   initSignaturePad()
+}, 100)
+
+// 加水印功能
+const addWatermark = () => {
+  const options = Object.assign(
+    {
+      text: '',
+      fontSize: 20,
+      lineHeight: 24,
+      fontFamily: 'Arial',
+      fontWeight: 'bold',
+      color: 'rgba(0, 0, 0, 0.1)',
+      rotate: -45,
+      x: 100,
+      y: 100,
+      repeat: true,
+    },
+    props.watermark,
+  )
+
+  if (!options.text) {
+    return
+  }
+
+  const ctx = canvasRef.value.getContext('2d')
+  if (options.repeat) {
+    const canvasWidth = canvasRef.value.width / ratio
+    const canvasHeight = canvasRef.value.height / ratio
+    const textWidth = ctx.measureText(options.text).width
+    const textHeight = options.fontSize
+
+    const diagonal = Math.sqrt(canvasWidth * canvasWidth + canvasHeight * canvasHeight)
+    const stepX = textWidth + 100
+    const stepY = textHeight + 100
+
+    for (let x = -diagonal; x < diagonal; x += stepX) {
+      for (let y = -diagonal; y < diagonal; y += stepY) {
+        ctx.save()
+        ctx.font = `${options.fontWeight} ${options.fontSize}px/${options.lineHeight}px ${options.fontFamily}`
+        ctx.fillStyle = options.color
+        ctx.translate(x, y)
+        ctx.rotate((Math.PI / 180) * options.rotate)
+        ctx.fillText(options.text, 0, 0)
+        ctx.restore()
+      }
+    }
+  } else {
+    ctx.save()
+    ctx.font = `${options.fontWeight} ${options.fontSize}px/${lineHeight}px ${options.fontFamily}`
+    // 水印颜色
+    ctx.fillStyle = options.color
+    // 水印位置
+    ctx.translate(options.x, options.y)
+    // 水印旋转
+    ctx.rotate((Math.PI / 180) * options.rotate)
+    // 设置水印文本
+    ctx.fillText(options.text, 0, 0)
+    ctx.restore()
+  }
 }
 
 onMounted(() => {
   nextTick(() => {
     initSignaturePad()
     initBgImage()
+    addWatermark()
     window.addEventListener('resize', handleResize)
   })
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
+  removeEvents()
 })
 
 // 画板是否空白
