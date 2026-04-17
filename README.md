@@ -1,22 +1,24 @@
 # @npm_lx/signature-pad-for-vue3
 
-一个基于[signature_pad](https://github.com/szimek/signature_pad)的签名板Vue3组件，支持自定义样式和多种导出格式，简单易用，可用于用户签名、合同签名等场景，可随时更换背景图片。  
+A Vue3 signature pad component based on [signature_pad](https://github.com/szimek/signature_pad), supporting custom styles and multiple export formats, easy to use, suitable for user signatures, contract signatures, etc. Background images can be changed at any time.
 
+## Other Languages Document
+- [中文文档](https://github.com/402931261/signature-pad-for-vue3/blob/master/README.zhCN.md)
 
-## 安装
+## Installation
 
 ```bash
 npm install @npm_lx/signature-pad-for-vue3
 ```
 
-## 组件预览
-需要你到本项目github上面clone项目，然后在项目根目录下执行以下命令，才能预览组件运行效果
+## Component Preview
+To preview the component, you need to clone the project from GitHub and run the following commands in the project root directory:
 ```bash
 pnpm install
 pnpm run dev
 ```
 
-## 基本使用
+## Basic Usage
 
 ```vue
 <template>
@@ -31,9 +33,9 @@ pnpm run dev
       @endStroke="handleEndStroke"
     />
     <div class="signature-actions">
-      <button @click="clearSignature">清除</button>
-      <button @click="saveSignature">保存</button>
-      <button @click="exportImage">导出图片</button>
+      <button @click="clearSignature">Clear</button>
+      <button @click="saveSignature">Save</button>
+      <button @click="exportImage">Export Image</button>
     </div>
   </div>
 </template>
@@ -45,11 +47,11 @@ import SignaturePad from '@npm_lx/signature-pad-for-vue3'
 const signaturePadRef = ref(null)
 
 const handleBeginStroke = () => {
-  console.log('开始签名')
+  console.log('Begin signing')
 }
 
 const handleEndStroke = () => {
-  console.log('结束签名')
+  console.log('End signing')
 }
 
 const clearSignature = () => {
@@ -59,8 +61,8 @@ const clearSignature = () => {
 const saveSignature = () => {
   const base64Data = signaturePadRef.value.getBase64Data()
   if (base64Data) {
-    console.log('签名数据:', base64Data)
-    // 可以将base64Data发送到服务器保存
+    console.log('Signature data:', base64Data)
+    // You can send base64Data to the server for storage
   }
 }
 
@@ -90,66 +92,66 @@ button {
 </style>
 ```
 
-## 配置项
+## Props
 
-| 参数名 | 类型 | 默认值 | 描述 |
+| Prop Name | Type | Default Value | Description |
 | --- | --- | --- | --- |
-| penMinWidth | Number | 2 | 笔画的最小宽度 |
-| penMaxWidth | Number | 2 | 笔画的最大宽度 |
-| penColor | String | '#000000' | 笔画的颜色 |
-| backgroundColor | String | '#F3F3F4' | 画板的背景颜色 |
-| bgImageUrl | String | '' | 背景图片的URL（用于回显签名） |
-| watermark | Object | {} | 水印配置参数，默认值见[水印配置](#默认水印参数) |
+| penMinWidth | Number | 2 | Minimum width of the pen stroke |
+| penMaxWidth | Number | 2 | Maximum width of the pen stroke |
+| penColor | String | '#000000' | Color of the pen stroke |
+| backgroundColor | String | '#F3F3F4' | Background color of the signature pad |
+| bgImageUrl | String | '' | URL of the background image (for signature preview) |
+| watermark | Object | {} | Watermark configuration parameters, default values see [Watermark Configuration](#default-watermark-parameters) |
 
-## 默认水印参数
-当你想加水印的时候，记得text需要传字符串才会打开水印，否则text值为空是不加水印的
+## Default Watermark Parameters
+When you want to add a watermark, remember to pass a string for the text parameter to enable the watermark, otherwise no watermark will be added if the text value is empty.
 ```javascript
 {
-  // 水印文本
+  // Watermark text
   text: '', 
-  // 字体大小
+  // Font size
   fontSize: 20,
-  // 行高
+  // Line height
   lineHeight: 24,
-  // 字体
+  // Font family
   fontFamily: 'Arial',
-  // 字重
+  // Font weight
   fontWeight: 'bold',
-  // 字体颜色
+  // Font color
   color: 'rgba(0, 0, 0, 0.1)',
-  // 旋转角度
+  // Rotation angle
   rotate: -45,
-  // 水印起始x坐标
+  // Watermark starting x coordinate
   x: 100,
-  // 水印起始y坐标
+  // Watermark starting y coordinate
   y: 100,
-  // 当重复水印的时候，水印之间的距离 x y
+  // Distance between watermarks when repeating x y
   textDistanceX: 0,
   textDistanceY: 0,
-  // 是否在整个画布上重复水印
+  // Whether to repeat the watermark across the entire canvas
   repeat: true,
 }
 ```
-## 方法
+## Methods
 
-| 方法名 | 参数 | 返回值 | 描述 |
+| Method Name | Parameters | Return Value | Description |
 | --- | --- | --- | --- |
-| clear | isClearBg: Boolean (默认: false) | 无 | 清空画板，isClearBg为true时同时清除背景图片 |
-| getBase64Data | format: String (默认: 'png'), quality: Number (默认: 0.95) | String | 获取签名的Base64数据 |
-| getImageFile | format: String (默认: 'png'), quality: Number (默认: 0.95) | 无 | 导出签名为图片文件 |
-| setBgImage | url: String | 无 | 设置背景图片 |
-| isCanvasEmpty | 无 | Boolean | 检查画板是否为空 |
+| clear | isClearBg: Boolean (default: false) | None | Clear the signature pad, if isClearBg is true, also clear the background image |
+| getBase64Data | format: String (default: 'png'), quality: Number (default: 0.95) | String | Get the signature as Base64 data |
+| getImageFile | format: String (default: 'png'), quality: Number (default: 0.95) | None | Export the signature as an image file |
+| setBgImage | url: String | None | Set the background image |
+| isCanvasEmpty | None | Boolean | Check if the canvas is empty |
 
-## 事件
+## Events
 
-| 事件名 | 说明 |
+| Event Name | Description |
 | --- | --- |
-| beginStroke | 开始签名时触发 |
-| endStroke | 结束签名时触发 |
+| beginStroke | Triggered when starting to sign |
+| endStroke | Triggered when finishing signing |
 
-## 注意事项
+## Notes
 
-1. 组件需要一个有固定宽高的容器来显示
-2. 使用ref来调用组件的方法
-3. 使用背景图片需要来源支持跨域设置
-4. 导出的图片格式支持png、jpg等常见格式
+1. The component needs a container with fixed width and height to display
+2. Use ref to call the component's methods
+3. Using background images requires cross-origin support from the source
+4. Exported image formats support common formats like png, jpg, etc.

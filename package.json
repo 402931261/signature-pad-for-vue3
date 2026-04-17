@@ -1,6 +1,6 @@
 {
   "name": "@npm_lx/signature-pad-for-vue3",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "type": "module",
   "private": false,
   "homepage": "https://github.com/402931261/signature-pad-for-vue3#readme",
@@ -8,6 +8,7 @@
 		"type": "git",
 		"url": "git+https://github.com/402931261/signature-pad-for-vue3"
 	},
+  "keywords": ["vue3", "signature-pad", "canvas", "vue-component", "签字板", "手写板", "签名板"],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
