@@ -3,7 +3,7 @@
 A Vue3 signature pad component based on [signature_pad](https://github.com/szimek/signature_pad), supporting custom styles and multiple export formats, easy to use, suitable for user signatures, contract signatures, etc. Background images can be changed at any time.
 
 ## Other Languages Document
-- [中文文档](https://github.com/402931261/signature-pad-for-vue3/blob/master/README.zhCN.md)
+- [中文文档](https://github.com/402931261/signature-pad-for-vue3/blob/master/README_zh.md)
 
 ## Installation
 
@@ -33,7 +33,9 @@ pnpm run dev
       @endStroke="handleEndStroke"
     />
     <div class="signature-actions">
-      <button @click="clearSignature">Clear</button>
+      <button @click="clearSignature">Clear</butto
+      <button @click="undoSignature">Undo</button>
+      <button @click="redoSignature">Redo</button>
       <button @click="saveSignature">Save</button>
       <button @click="exportImage">Export Image</button>
     </div>
@@ -68,6 +70,14 @@ const saveSignature = () => {
 
 const exportImage = () => {
   signaturePadRef.value.getImageFile()
+}
+
+const undoSignature = () => {
+  signaturePadRef.value.undo()
+}
+
+const redoSignature = () => {
+  signaturePadRef.value.redo()
 }
 </script>
 
@@ -141,6 +151,8 @@ When you want to add a watermark, remember to pass a string for the text paramet
 | getImageFile | format: String (default: 'png'), quality: Number (default: 0.95) | None | Export the signature as an image file |
 | setBgImage | url: String | None | Set the background image |
 | isCanvasEmpty | None | Boolean | Check if the canvas is empty |
+| undo | None | None | Undo the last stroke |
+| redo | None | None | Redo the last undone stroke |
 
 ## Events
 

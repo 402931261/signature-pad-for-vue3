@@ -211,6 +211,7 @@ const emitBeginStroke = () => {
 }
 
 const emitEndStroke = () => {
+  undoData = [] // 笔画结束的时候删除撤回的数据
   emits('endStroke')
 }
 
@@ -329,6 +330,35 @@ const addWatermark = () => {
   }
 }
 
+/**
+ * 撤回重做功能
+ * redo undo
+ *
+ */
+
+let undoData = [] // 撤回的数据放到这里
+
+// 重做笔画
+const redo = () => {
+  if (undoData.length > 0) {
+    const data = signaturePadRef.value.toData()
+    data.push(undoData.pop())
+    signaturePadRef.value.redraw()
+  }
+}
+
+// 撤回笔画
+const undo = () => {
+  const data = signaturePadRef.value.toData()
+  if (data && data.length > 0) {
+    const removedData = data.pop()
+    undoData.push(removedData)
+    signaturePadRef.value.redraw()
+  }
+}
+
+/* end */
+
 onMounted(() => {
   nextTick(() => {
     initSignaturePad()
@@ -355,6 +385,8 @@ defineExpose({
   getImageFile,
   setBgImage,
   isCanvasEmpty,
+  redo,
+  undo,
   signaturePadRef,
 })
 </script>

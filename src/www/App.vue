@@ -20,6 +20,8 @@
       <button @click="handleGetBase64Click">获取签字base64</button>
       <button @click="handleGetImageFileClick">获取签字文件下载</button>
       <button @click="checkSignatureIsEmpty">检查是画板是否有内容</button>
+      <button @click="handleRedoClick">Redo</button>
+      <button @click="handleUndoClick">Undo</button>
       <div class="pen-color">
         <span>画笔颜色：</span>
         <input type="color" v-model="color" />
@@ -95,6 +97,16 @@ const handleGetImageFileClick = () => {
 // 检查签字板是否是空的
 const checkSignatureIsEmpty = () => {
   console.log(signaturePadRef.value.isCanvasEmpty())
+}
+
+// 重做
+const handleRedoClick = () => {
+  signaturePadRef.value.redo()
+}
+
+// 撤销
+const handleUndoClick = () => {
+  signaturePadRef.value.undo()
 }
 
 onMounted(() => {

@@ -32,6 +32,8 @@ pnpm run dev
     />
     <div class="signature-actions">
       <button @click="clearSignature">清除</button>
+      <button @click="undoSignature">撤回</button>
+      <button @click="redoSignature">重做</button>
       <button @click="saveSignature">保存</button>
       <button @click="exportImage">导出图片</button>
     </div>
@@ -66,6 +68,14 @@ const saveSignature = () => {
 
 const exportImage = () => {
   signaturePadRef.value.getImageFile()
+}
+
+const undoSignature = () => {
+  signaturePadRef.value.undo()
+}
+
+const redoSignature = () => {
+  signaturePadRef.value.redo()
 }
 </script>
 
@@ -139,6 +149,8 @@ button {
 | getImageFile | format: String (默认: 'png'), quality: Number (默认: 0.95) | 无 | 导出签名为图片文件 |
 | setBgImage | url: String | 无 | 设置背景图片 |
 | isCanvasEmpty | 无 | Boolean | 检查画板是否为空 |
+| undo | 无 | 无 | 撤回上一笔画 |
+| redo | 无 | 无 | 重做上一笔画 |
 
 ## 事件
 
